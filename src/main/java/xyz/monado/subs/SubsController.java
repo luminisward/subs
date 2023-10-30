@@ -223,7 +223,8 @@ public class SubsController {
 
         String scheme = request.getHeader("X-Forwarded-Proto");
         if (scheme == null) {
-            scheme = request.getScheme();
+//            scheme = request.getScheme();
+            scheme = "https";
         }
 
         url.append(scheme);
