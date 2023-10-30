@@ -49,14 +49,14 @@ public class SubsController {
         if (clientType == null) {
             if (containsIgnoreCase(userAgent, "Clash")) {
                 clientType = ClientType.CLASH;
-            } else if (containsIgnoreCase(userAgent, "Surge")) {
+            } else if (containsIgnoreCase(userAgent, "Surge") || containsIgnoreCase(userAgent, "Surfboard")) {
                 clientType = ClientType.SURGE;
             } else {
                 return ResponseEntity.badRequest().body("unknown client type");
             }
         }
 
-        var remoteConfigResponseEntity = requestBuilder.header(HttpHeaders.USER_AGENT, userAgent).retrieve().toEntity(String.class).block();
+        var remoteConfigResponseEntity = requestBuilder.header(HttpHeaders.USER_AGENT, clientType.name()).retrieve().toEntity(String.class).block();
         if (remoteConfigResponseEntity == null) {
             return ResponseEntity.badRequest().body("remote config response is null");
         }
