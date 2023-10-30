@@ -16,8 +16,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.naming.InsufficientResourcesException;
-
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,7 +36,7 @@ public class SubsController {
 
 
     @GetMapping("/")
-    public ResponseEntity<String> getConfig(Model model, @Valid QueryParams queryParams, @RequestHeader(HttpHeaders.USER_AGENT) String userAgent, HttpServletRequest request) throws InsufficientResourcesException {
+    public ResponseEntity<String> getConfig(Model model, @Valid QueryParams queryParams, @RequestHeader(HttpHeaders.USER_AGENT) String userAgent, HttpServletRequest request) {
         String fullUrl = getURL(request);
         model.addAttribute("url", fullUrl);
 
@@ -95,7 +93,7 @@ public class SubsController {
             String proxy = configMap.get("Proxy");
             var proxyMap = parseIniSectionContent(proxy);
             var panelStringBuilder = new StringBuilder();
-            panelStringBuilder.append("title=订阅信息, content=");
+            panelStringBuilder.append("SubscribeInfo=title=SubscribeInfo, content=");
             var iterator = proxyMap.keySet().iterator();
             while (iterator.hasNext()) {
                 String key = iterator.next();
@@ -108,7 +106,7 @@ public class SubsController {
                 }
             }
             panelStringBuilder.append(", style=info");
-            configMap.put("Panel", panelStringBuilder.toString());
+            configMap.put("Panel",  panelStringBuilder.toString());
             configMap.put("Proxy", convertIniSectionContentMapToString(proxyMap));
         }
 
@@ -117,8 +115,8 @@ public class SubsController {
         List<String> proxyList = proxyMap.keySet().stream().toList();
 
         LinkedHashMap<String, String> proxyGroupMap = new LinkedHashMap<>();
-        proxyGroupMap.put("AUTO", "url-test, " + String.join(",", proxyList));
         proxyGroupMap.put("PROXY", "select, AUTO, " + String.join(",", proxyList));
+        proxyGroupMap.put("AUTO", "url-test, " + String.join(",", proxyList));
         proxyGroupMap.put("UNMATCHED", "select, PROXY, DIRECT");
         configMap.put("Proxy Group", convertIniSectionContentMapToString(proxyGroupMap));
 
