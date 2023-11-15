@@ -1,7 +1,11 @@
 package xyz.monado.subs;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,7 +18,9 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+@EnableCaching
 @SpringBootApplication
 public class SubsApplication {
 
@@ -70,4 +76,17 @@ public class SubsApplication {
 		templateResolver.setCheckExistence(true); // important to avoid NPE
 		return templateResolver;
 	}
+
+	@Bean
+	public Caffeine<Object, Object> caffeineConfig() {
+		return Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES);
+	}
+
+	@Bean
+	public CacheManager cacheManager(Caffeine<Object, Object> caffeine) {
+		CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+		caffeineCacheManager.setCaffeine(caffeine);
+		return caffeineCacheManager;
+	}
+
 }

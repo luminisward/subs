@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.thymeleaf.context.Context;
@@ -25,13 +24,13 @@ import static io.netty.util.AsciiString.containsIgnoreCase;
 @Controller
 public class SubsController {
     private final SpringTemplateEngine templateEngine;
-    private final WebClient webClient;
     private final Yaml yaml;
+    private final RequestUtil requestUtil;
 
-    public SubsController(SpringTemplateEngine templateEngine, WebClient webClient, Yaml yaml) {
+    public SubsController(SpringTemplateEngine templateEngine, Yaml yaml, RequestUtil requestUtil) {
         this.templateEngine = templateEngine;
-        this.webClient = webClient;
         this.yaml = yaml;
+        this.requestUtil = requestUtil;
     }
 
 
@@ -43,7 +42,6 @@ public class SubsController {
         String configUrl = queryParams.getUrl();
         UriComponents uriComponents = UriComponentsBuilder.fromUriString(configUrl).build(false);
         URI uri = uriComponents.toUri();
-        var requestBuilder = webClient.get().uri(uri);
         ClientType clientType = queryParams.getClientType();
 
         if (clientType == null) {
@@ -56,7 +54,7 @@ public class SubsController {
             }
         }
 
-        var remoteConfigResponseEntity = requestBuilder.header(HttpHeaders.USER_AGENT, clientType.name()).retrieve().toEntity(String.class).block();
+        var remoteConfigResponseEntity = requestUtil.requestRemoteConfig(uri, clientType);
         if (remoteConfigResponseEntity == null) {
             return ResponseEntity.badRequest().body("remote config response is null");
         }
@@ -106,7 +104,7 @@ public class SubsController {
                 }
             }
             panelStringBuilder.append(", style=info");
-            configMap.put("Panel",  panelStringBuilder.toString());
+            configMap.put("Panel", panelStringBuilder.toString());
             configMap.put("Proxy", convertIniSectionContentMapToString(proxyMap));
         }
 
