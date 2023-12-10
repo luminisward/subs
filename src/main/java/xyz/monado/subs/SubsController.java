@@ -147,7 +147,6 @@ public class SubsController {
 
         proxiesAndGroupsAndDns.put("proxies", proxies);
         proxiesAndGroupsAndDns.put("proxy-groups", groups);
-        proxiesAndGroupsAndDns.put("dns", configYamlMap.get("dns"));
 
         model.addAttribute("proxiesAndGroups", yaml.dump(proxiesAndGroupsAndDns));
         Context context = new Context();
