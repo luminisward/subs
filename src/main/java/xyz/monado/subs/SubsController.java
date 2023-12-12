@@ -82,10 +82,7 @@ public class SubsController {
         assert iniData != null;
         var configMap = parseIniSection(iniData);
 
-
-        var generalMap = parseIniSectionContent(configMap.get("General"));
-        generalMap.keySet().retainAll(Arrays.asList("dns-server", "skip-proxy", "exclude-simple-hostnames", "ipv6", "internet-test-url", "proxy-test-url", "test-timeout"));
-        configMap.put("General", convertIniSectionContentMapToString(generalMap));
+        configMap.remove("General");
 
         if (configMap.get("Panel") == null) {
             String proxy = configMap.get("Proxy");
